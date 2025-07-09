@@ -10,6 +10,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
+                    echo "Running BUILD stage ..."
                     ls -la
                     node --version
                     npm --version
@@ -22,6 +23,7 @@ pipeline {
         stage("Test"){
             steps{
                 sh '''
+                    echo "Running TEST stage ..."
                     test -f "build/index.html"
                     npm test
                 '''
