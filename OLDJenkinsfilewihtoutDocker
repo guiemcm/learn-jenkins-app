@@ -122,7 +122,7 @@ pipeline {
         stage("Deploy Staging E2E"){
             agent {
                 docker {
-                    image 'my-playwright'
+                    image 'mcr.microsoft.com/playwright:v1.54.0-noble'
                     reuseNode true
                 }
             }
@@ -131,11 +131,12 @@ pipeline {
             }
             steps{
                 sh '''
-                    netlify --version
+                    npm install netlify-cli node-jq
+                    node_modules/.bin/netlify --version
                     echo "Deploying to staging. Site ID: $NETLIFY_SITE_ID"
-                    netlify status 
-                    netlify deploy --dir=build --no-build --json > deploy_output.json
-                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy_output.json)
+                    node_modules/.bin/netlify status 
+                    node_modules/.bin/netlify deploy --dir=build --no-build --json > deploy_output.json
+                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' deploy_output.json)
                     npx playwright test --reporter=html
                 '''
             }
@@ -155,7 +156,7 @@ pipeline {
         stage("Deploy prod E2E"){
             agent {
                 docker {
-                    image 'my-playwright'
+                    image 'mcr.microsoft.com/playwright:v1.54.0-noble'
                     reuseNode true
                 }
             }
@@ -165,10 +166,11 @@ pipeline {
             steps{
                 sh '''
                     node --version
-                    netlify --version
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
                     echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    netlify status 
-                    netlify deploy --dir=build --prod --no-build
+                    node_modules/.bin/netlify status 
+                    node_modules/.bin/netlify deploy --dir=build --prod --no-build
                     npx playwright test --reporter=html
                 '''
             }
